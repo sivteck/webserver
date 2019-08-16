@@ -6,21 +6,56 @@ const path = require('path')
 
 zlib.gzipPromise = toPromise(zlib.gzip)
 
-const server = net.createServer((sock) => {
-  // 'connection' listener
-  console.log('client connected')
-  sock.on('data', async function (chunk) {
-    let parsedReq = parseRequest(chunk)
-    const res = await buildResponse(parsedReq)
-    sock.write(res)
+async function app () {
+  return {
+    routes: {},
+    get (slug, fn, method = 'GET') {
+      this.routes[slug] = fn
+      this.routes[slug].method = method
+    },
+    send () {
+    },
+    listen (port) {
+    }
+  }
+}
+
+function serve (port, handleRequestFn) {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer((sock) => {
+      // 'connection' listener
+      console.log('client connected')
+      sock.on('data', async (chunk) => {
+        await handleRequestFn(chunk, sock)
+        resolve()
+      })
+    })
+    server.on('error', (err) => {
+      reject(err)
+    })
+    server.listen(port, () => {
+      console.log('server bound')
+    })
   })
-})
-server.on('error', (err) => {
-  throw err
-})
-server.listen(80, () => {
-  console.log('server bound')
-})
+}
+
+function handleRequest (routes) {
+  return async (chunk, socket) => {
+    const parsedReq = parseRequest(chunk, socket)
+    if (parsedReq.uri in routes) {
+      const handler = routes[parsedReq.uri]
+      let res = {}
+      res.send = async (payload) => {
+        const responseBuffer = await buildResponse(parsedReq, payload)
+        socket.write(responseBuffer)
+      }
+      handler(parsedReq, res)
+    } else {
+      const responseBuffer = await buildResponse(parsedReq)
+      socket.write(responseBuffer)
+    }
+  }
+}
 
 function getContentType (uri) {
   const contentType = {
@@ -36,7 +71,7 @@ function getContentType (uri) {
   return 'Content-Type: ' + contentType[path.extname(uri).slice(1)]
 }
 
-async function buildResponse (reqObj) {
+async function buildResponse (reqObj, payload = {}) {
   let res = okRes()
   // res += 'Content-Encoding: gzip\r\n'
   if (reqObj.method === 'GET') {
@@ -44,13 +79,19 @@ async function buildResponse (reqObj) {
       const body = await getResource(reqObj.uri)
       res += 'Content-Length: ' + Buffer.byteLength(body).toString() + '\r\n'
       res += getContentType(reqObj.uri) + '\r\n\r\n'
-      console.log('body length', Buffer.byteLength(body))
       console.log(res)
       res = Buffer.from(res)
       res = Buffer.concat([res, body])
     } catch (e) {
-      console.log(e)
-      res = notFoundRes()
+      if (payload !== {}) {
+        res += 'Content-Length: ' + Buffer.byteLength(JSON.stringify(payload)).toString() + '\r\n'
+        res += 'Content-Type: ' + 'text/plain\r\n\r\n'
+        res = Buffer.from(res)
+        res = Buffer.concat([res, Buffer.from(JSON.stringify(payload))])
+      } else {
+          console.log(e)
+          res = notFoundRes()
+      }
     }
   }
   return res
@@ -65,7 +106,6 @@ function okRes () {
   res += 'Access-Control-Allow-Origin: *\r\n'
   res += 'Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept\r\n'
   return res
-
 }
 
 function parseRequest (req) {
@@ -74,8 +114,10 @@ function parseRequest (req) {
   let reqObj = {}
   const reqLine = reqStr[0].split(' ')
   console.log(reqLine)
-  if (reqLine[0] === 'GET') reqObj.method = 'GET'
-  else if (reqLine[0] === 'POST') reqObj.method = 'POST'
+  if (reqLine[0] === 'GET') {
+    reqObj.method = 'GET'
+    reqObj.body = ''
+  } else if (reqLine[0] === 'POST') reqObj.method = 'POST'
   else return {}
   reqObj.uri = reqLine[1]
   reqObj.protocol = reqLine[2]
@@ -97,3 +139,12 @@ async function getResource (uri) {
   else content = await fs.readFile('.' + uri)
   return Buffer.from(content)
 }
+
+module.exports.serve = serve
+module.exports.handleRequest = handleRequest
+
+// async function mainApp () {
+//   await serve(80, handleRequest({}))
+// }
+// 
+// mainApp().then(console.log)
