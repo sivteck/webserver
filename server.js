@@ -89,8 +89,8 @@ async function buildResponse (reqObj, payload = {}) {
         res = Buffer.from(res)
         res = Buffer.concat([res, Buffer.from(JSON.stringify(payload))])
       } else {
-          console.log(e)
-          res = notFoundRes()
+        console.log(e)
+        res = notFoundRes()
       }
     }
   }
