@@ -1,41 +1,21 @@
 const fs = require('fs').promises
 const net = require('net')
 const toPromise = require('./promisify.js')
-const zlib = require('zlib')
 const path = require('path')
 
-zlib.gzipPromise = toPromise(zlib.gzip)
-
-async function app () {
-  return {
-    routes: {},
-    get (slug, fn, method = 'GET') {
-      this.routes[slug] = fn
-      this.routes[slug].method = method
-    },
-    send () {
-    },
-    listen (port) {
-    }
-  }
-}
-
 function serve (port, handleRequestFn) {
-  return new Promise((resolve, reject) => {
-    const server = net.createServer((sock) => {
-      // 'connection' listener
-      console.log('client connected')
-      sock.on('data', async (chunk) => {
-        await handleRequestFn(chunk, sock)
-        resolve()
-      })
+  const server = net.createServer((sock) => {
+    // 'connection' listener
+    console.log('client connected')
+    sock.on('data', async (chunk) => { // async iterator
+      await handleRequestFn(chunk, sock)
     })
-    server.on('error', (err) => {
-      reject(err)
-    })
-    server.listen(port, () => {
-      console.log('server bound')
-    })
+  })
+  server.on('error', (err) => {
+    console.log(err)
+  })
+  server.listen(port, () => {
+    console.log('server bound')
   })
 }
 
