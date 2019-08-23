@@ -1,4 +1,4 @@
-const App = require('./route-handler.js')
+const App = require('./server.js')
 
 let app = App()
 
