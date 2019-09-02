@@ -22,7 +22,11 @@ let middlewares = []
 let routes = {
   '/dummy': [(req, res) => {
     res.send('MEME KILL')
-  }, 'GET']
+  }, 'GET'],
+  '/': [(req, res) => {
+    console.log('mea calleeed')
+    res.send(JSON.stringify(req))
+  }, 'POST']
 }
 
 function app () {
@@ -32,7 +36,7 @@ function app () {
     post: (slug, fn) => { routes[slug] = [fn, 'POST'] },
     listen: (port, fn) => {
       fn()
-      serve(port, requestHandler(routes))
+      serve(port, requestHandler(middlewares, routes))
     }
   }
 }

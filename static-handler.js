@@ -2,20 +2,6 @@ const parseRequest = require('./parse-request.js')
 const fs = require('fs').promises
 const path = require('path')
 
-function staticHandler () {
-  return async (chunk, socket) => {
-    const parsedReq = parseRequest(chunk, socket)
-    const responseBuffer = await buildResponse(parsedReq)
-    if (responseBuffer === null) return null
-    try {
-      socket.write(responseBuffer)
-    } catch (e) {
-      console.log('socket write failed')
-      console.log(e)
-    }
-  }
-}
-
 function getContentType (uri) {
   const contentType = {
     '': 'text/html',
@@ -36,19 +22,18 @@ async function getResource (uri) {
   let content = ''
   if (uri === '/') content = await fs.readFile('./index.html')
   else content = await fs.readFile('.' + uri)
-  console.log(content)
   return Buffer.from(content)
 }
 
 async function buildResponse (reqObj, payload = {}) {
   let res = okRes()
   // res += 'Content-Encoding: gzip\r\n'
+  if (reqObj.method === 'POST') return null
   if (reqObj.method === 'GET') {
     try {
       const body = await getResource(reqObj.uri)
       res += 'Content-Length: ' + Buffer.byteLength(body).toString() + '\r\n'
       res += getContentType(reqObj.uri) + '\r\n\r\n'
-      console.log(res)
       res = Buffer.from(res)
       res = Buffer.concat([res, body])
     } catch (e) {
@@ -69,4 +54,14 @@ function okRes () {
   return res
 }
 
-module.exports = staticHandler
+module.exports = async (chunk, socket) => {
+    const parsedReq = parseRequest(chunk, socket)
+    const responseBuffer = await buildResponse(parsedReq)
+    if (responseBuffer === null) return null
+    try {
+      socket.write(responseBuffer)
+    } catch (e) {
+      console.log('socket write failed')
+      console.log(e)
+    }
+  }

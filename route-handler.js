@@ -1,17 +1,28 @@
 const parseRequest = require('./parse-request.js')
 
-function routeHandler (routes) {
+function justReturn () {
+  return
+}
+
+function routeHandler (middlewares, routes) {
   return async (chunk, socket) => {
     const parsedReq = parseRequest(chunk, socket)
     if (parsedReq.uri in routes) {
       const handler = routes[parsedReq.uri][0]
       let res = {}
+      res['Transfer-Encoding'] = 'Identity'
       res.send = async (payload) => {
         const responseBuffer = await buildResponse(parsedReq, payload)
-        console.log(socket)
+        console.log('le uri resp bufferparseddd')
+        console.log(responseBuffer)
         socket.write(responseBuffer)
       }
-      handler(parsedReq, res)
+
+      let pipeLine = [...middlewares, handler]
+      for (func of pipeLine) {
+        func(parsedReq, res, justReturn)
+      }
+      // handler(parsedReq, res)
     } else {
       const responseBuffer = await buildResponse(parsedReq)
       try {
@@ -33,9 +44,7 @@ async function buildResponse (reqObj, payload = {}) {
       res += 'Content-Type: ' + 'text/plain\r\n\r\n'
       res = Buffer.from(res)
       res = Buffer.concat([res, Buffer.from(JSON.stringify(payload))])
-    } else {
-      res = notFoundRes()
-    }
+    } else res = notFoundRes()
   }
   return res
 }
