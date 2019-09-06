@@ -8,7 +8,8 @@ function routeHandler (middlewares, routes) {
   return async (chunk, socket) => {
     const parsedReq = parseRequest(chunk, socket)
     if (parsedReq.uri in routes) {
-      const handler = routes[parsedReq.uri][0]
+      const [handler, method] = routes[parsedReq.uri]
+      if (parsedReq.method !== method) throw('no such method allowed in this route')
       let res = {}
       res['Transfer-Encoding'] = 'Identity'
       res.send = async (payload) => {
@@ -38,14 +39,13 @@ function routeHandler (middlewares, routes) {
 async function buildResponse (reqObj, payload = {}) {
   let res = okRes()
   // res += 'Content-Encoding: gzip\r\n'
-  if (reqObj.method === 'GET') {
-    if (payload !== {}) {
-      res += 'Content-Length: ' + Buffer.byteLength(JSON.stringify(payload)).toString() + '\r\n'
-      res += 'Content-Type: ' + 'text/plain\r\n\r\n'
-      res = Buffer.from(res)
-      res = Buffer.concat([res, Buffer.from(JSON.stringify(payload))])
-    } else res = notFoundRes()
-  }
+  if (payload !== {}) {
+    res += 'Content-Length: ' + Buffer.byteLength(JSON.stringify(payload)).toString() + '\r\n'
+    res += 'Set-Cookie: ' + 'someKey=someValue\r\n'
+    res += 'Content-Type: ' + 'text/plain\r\n\r\n'
+    res = Buffer.from(res)
+    res = Buffer.concat([res, Buffer.from(JSON.stringify(payload))])
+  } else res = notFoundRes()
   return res
 }
 

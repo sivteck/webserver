@@ -5,13 +5,36 @@
   <title></title>
 </head>
 <body>
-  <h1> Web Server Implementation, can serve document and images ↓ </h1>
- <img src='./dog.jpg'/>
- <!-- video src="focus.webm"></video --!>
-
-   <form method="POST">
-   <input type="text" name="keks" > </input>
-   <button type="submit"> KekS </button>
-   </form>
 </body>
+</html>
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hello Bulma!</title>
+    <script src="script.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
+  </head>
+  <body>
+  <section class="section">
+    <div class="container">
+      <h1 class="title"> Web Server Implementation, can serve document and images ↓ </h1>
+      <img src='./dog.jpg'/>
+      <!-- video src="focus.webm"></video --!>
+    
+       <form action="/handleForms" method="POST">
+       <input type="text" name="inputName"> </input>
+       <button type="submit"> Submit Form </button>
+       </form>
+
+       <form method="POST">
+       <input type="file"> </input>
+       <button type="submit"> Upload File </button>
+       </form>
+    
+    </div>
+  </section>
+  </body>
 </html>
