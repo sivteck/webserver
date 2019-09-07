@@ -3,13 +3,12 @@ const App = require('./server.js')
 let app = App()
 
 app.use(function (req, res, next) {
-  console.log('middle ware ran')
-  console.log(req.body)
+  console.log('----------------- are cookies populated')
+  console.log(req.cookies)
   next()
 })
 
 app.use(function (req, res, next) {
-  console.log('second middlew are ran')
   next()
 })
 
@@ -18,8 +17,13 @@ app.get('/momos', (req, res) => {
 })
 
 app.post('/handleForms', (req, res) => {
-  console.log('form handler route has been hit, mayday! mayday!')
-  res.send('mememe')
+  console.log('form handler route has been hit')
+  res.send('Form successfully submitted: ' + JSON.stringify(req.body))
+})
+
+app.get('/handleFormsGET', (req, res) => {
+  console.log('form handler GET route has been hit')
+  res.send('Form successfully submitted GET: ' + JSON.stringify(req.body))
 })
 
 app.listen(80, () => console.log('server running in port 80'))

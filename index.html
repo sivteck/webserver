@@ -26,8 +26,16 @@
     
        <form action="/handleForms" method="POST">
        <input type="text" name="inputName"> </input>
+       <input type="text" name="inputNameAgain"> </input>
        <button type="submit"> Submit Form </button>
        </form>
+
+       <form action="/handleFormsGET" method="GET">
+       <input type="text" name="inputName"> </input>
+       <input type="text" name="inputNameAgain"> </input>
+       <button type="submit"> Submit Form encoded in URL </button>
+       </form>
+
 
        <form method="POST">
        <input type="file"> </input>

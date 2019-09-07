@@ -1,6 +1,8 @@
 const net = require('net')
 const toPromise = require('./promisify.js')
 const requestHandler = require('./request-handler.js')
+const cookieParser = require('./cookie-parser.js')
+const urlencodedParser = require('./urlencoded-parser.js')
 
 function serve (port, requestHandler) {
   const server = net.createServer((sock) => {
@@ -17,7 +19,7 @@ function serve (port, requestHandler) {
   })
 }
 
-let middlewares = []
+let middlewares = [urlencodedParser, cookieParser]
 
 let routes = {
   '/dummy': [(req, res) => {
