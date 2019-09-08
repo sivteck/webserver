@@ -1,20 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title></title>
-</head>
-<body>
-</body>
-</html>
-
-<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Hello Bulma!</title>
-    <script src="script.js"></script>
+    <script defer src="script.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
   </head>
   <body>
@@ -25,21 +15,26 @@
       <!-- video src="focus.webm"></video --!>
     
        <form action="/handleForms" method="POST">
-       <input type="text" name="inputName"> </input>
-       <input type="text" name="inputNameAgain"> </input>
-       <button type="submit"> Submit Form </button>
+         <input type="text" name="inputName"> </input>
+         <input type="text" name="inputNameAgain"> </input>
+         <button type="submit"> Submit Form </button>
        </form>
 
        <form action="/handleFormsGET" method="GET">
-       <input type="text" name="inputName"> </input>
-       <input type="text" name="inputNameAgain"> </input>
-       <button type="submit"> Submit Form encoded in URL </button>
+         <input type="text" name="inputName"> </input>
+         <input type="text" name="inputNameAgain"> </input>
+         <button type="submit"> Submit Form encoded in URL </button>
        </form>
 
+       <form id="post-json" method="POST">
+         <input type="text" name="inputName"> </input>
+         <input type="text" name="inputNameAgain"> </input>
+         <button id="post-json-b" type="submit"> Submit Form as JSON </button>
+       </form>
 
        <form method="POST">
-       <input type="file"> </input>
-       <button type="submit"> Upload File </button>
+         <input type="file"> </input>
+         <button type="submit"> Upload File </button>
        </form>
     
     </div>

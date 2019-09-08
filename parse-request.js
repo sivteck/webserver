@@ -10,7 +10,6 @@ function parseRequest (req) {
     }
     reqObj.headers[kv[0]] = kv[1].trim()
   }
-  console.log(reqObj)
   return reqObj
 }
 

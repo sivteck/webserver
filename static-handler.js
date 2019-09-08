@@ -17,8 +17,6 @@ function getContentType (uri) {
 }
 
 async function getResource (uri) {
-  console.log('from getResource')
-  console.log(uri)
   let content = ''
   if (uri === '/') content = await fs.readFile('./index.html')
   else content = await fs.readFile('.' + uri)

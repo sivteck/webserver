@@ -4,12 +4,17 @@ function justReturn () {
   return
 }
 
+function getURLParams (url) {
+  let splitURL = url.split('?') 
+  if (splitURL.length === 2) return splitURL
+  return null
+}
+
 function routeHandler (middlewares, routes) {
   return async (chunk, socket) => {
     const parsedReq = parseRequest(chunk, socket)
     parsedReq.urlParams = ''
-    let splitURL = parsedReq.uri.split('?') 
-    if (splitURL.length === 2) {
+    if (splitURL = getURLParams(parsedReq.uri)) {
       parsedReq.uri = splitURL[0]
       parsedReq.urlParams = splitURL[1]
     }
@@ -23,21 +28,17 @@ function routeHandler (middlewares, routes) {
         const responseBuffer = await buildResponse(parsedReq, payload, res.headers)
         socket.write(responseBuffer)
       }
-      res.setHeaders = headers => {
-        Object.assign(res.headers, headers)
-      }
+      res.setHeaders = headers => Object.assign(res.headers, headers)
       let pipeLine = [...middlewares, handler]
-      for (func of pipeLine) {
-        func(parsedReq, res, justReturn)
-      }
+      for (func of pipeLine) func(parsedReq, res, justReturn)
     } else {
-      const responseBuffer = await buildResponse(parsedReq)
-      try {
-        socket.write(responseBuffer)
-      } catch (e) {
-        console.log('socket write ailed')
-        console.log(e)
-      }
+        const responseBuffer = await buildResponse(parsedReq)
+        try {
+          socket.write(responseBuffer)
+        } catch (e) {
+          console.log('socket write failed')
+          console.log(e)
+        }
     }
   }
 }
