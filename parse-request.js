@@ -18,9 +18,7 @@ function parseStartLine(reqStartLine) {
   let reqLine = reqStartLine.split(' ')
   if (reqLine[0] === 'GET') {
     startKV.method = 'GET'
-    if (reqLine[1].startsWith('/?')) {
-      parseQueryString(reqLine[1].slice(2))
-    }
+    if (reqLine[1].startsWith('/?')) parseQueryString(reqLine[1].slice(2))
     startKV.body = ''
   } 
   if (reqLine[0] === 'POST') startKV.method = 'POST'

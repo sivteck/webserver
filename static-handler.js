@@ -54,6 +54,7 @@ function okRes () {
 
 module.exports = async (chunk, socket) => {
     const parsedReq = parseRequest(chunk, socket)
+    console.log(parsedReq)
     const responseBuffer = await buildResponse(parsedReq)
     if (responseBuffer === null) return null
     try {
